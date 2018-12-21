@@ -16,7 +16,7 @@ import java.io.InputStreamReader;
 @Path("/rc")
 public class DataLoadService {
 
-    private static Connector connector = new Connector();
+    private Connector connector = new Connector();
 
     @GET
     @Path("/test/{testString}")
