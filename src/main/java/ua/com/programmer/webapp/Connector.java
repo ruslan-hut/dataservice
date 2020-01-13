@@ -224,6 +224,7 @@ class Connector {
             isGroup = 0;
         }
         JSONObject jsonItem = new JSONObject();
+        jsonItem.put("type", "goods");
         jsonItem.put("id", item.invoke("Get","id").toString());
         jsonItem.put("isGroup", isGroup);
         jsonItem.put("code", item.invoke("Get","code").toString());
