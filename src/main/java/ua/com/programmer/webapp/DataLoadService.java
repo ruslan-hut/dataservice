@@ -1,6 +1,5 @@
 package ua.com.programmer.webapp;
 
-import netscape.javascript.JSException;
 import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.JSONObject;
@@ -16,11 +15,12 @@ import java.io.InputStreamReader;
 @Path("/rc")
 public class DataLoadService {
 
-    private static Connector connector = new Connector();
+    private Connector connector = new Connector();
 
     @GET
     @Path("/test/{testString}")
     public Response testService(@PathParam("testString") String testString){
+        connector.errorLog("got TEST request, parameter: "+testString);
         String output = "Hello, "+testString;
         return Response.status(200).entity(output).build();
     }
@@ -58,6 +58,7 @@ public class DataLoadService {
             while ((line = in.readLine()) != null) {
                 builder.append(line);
             }
+
             JSONParser parser = new JSONParser();
             inputDocument = (JSONObject) parser.parse(builder.toString());
 
@@ -77,7 +78,7 @@ public class DataLoadService {
         return Response.status(200).entity(output).build();
     }
 
-    private JSONArray processRequestData(JSONObject inputDocument) throws JSException, ParseException {
+    private JSONArray processRequestData(JSONObject inputDocument) throws ParseException{
 
         String userID = (String) inputDocument.get("userID");
         String type = (String) inputDocument.get("type");
