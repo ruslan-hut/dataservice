@@ -18,11 +18,84 @@ public class DataLoadService {
     private Connector connector = new Connector();
 
     @GET
-    @Path("/test/{testString}")
-    public Response testService(@PathParam("testString") String testString){
-        connector.errorLog("got TEST request, parameter: "+testString);
-        String output = "Hello, "+testString;
-        return Response.status(200).entity(output).build();
+    @Path("/test")
+    public Response testService(){
+        String result="";
+        try {
+            connector.openConnection();
+            connector.closeConnection();
+            result = "Database connected!";
+        }catch (Exception ex){
+            result = "Error: "+ex.toString();
+        }
+        return Response.status(200).entity(result).build();
+    }
+
+    @POST
+    @Path("/createOrder")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response createOrder(InputStream inputStream){
+
+        JSONObject outputDocument = new JSONObject();
+        outputDocument.put("status", true);
+        outputDocument.put("error", "");
+
+
+        if (connector.isBusy()){
+            connector.errorLog("busy state");
+            return Response.status(200).entity(outputDocument.toString()).build();
+        }
+
+        if (!connector.openConnection()){
+            connector.errorLog("quit without processing request");
+            connector.closeConnection();
+            return Response.status(200).entity(outputDocument.toString()).build();
+        }
+
+        StringBuilder builder = new StringBuilder();
+        try {
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
+            String line;
+            while ((line = in.readLine()) != null) {
+                builder.append(line);
+            }
+
+            connector.createOrder(builder.toString());
+
+        }catch (Exception ex){
+            //bad request
+            connector.errorLog("parse request: "+ex.toString());
+            outputDocument.put("status", false);
+            outputDocument.put("error", "can't process the request");
+        }
+
+        connector.closeConnection();
+
+        return Response.status(200).entity(outputDocument.toString()).build();
+    }
+
+    @POST
+    @Path("/utf8")
+    @Consumes(MediaType.TEXT_PLAIN)
+    public Response convertToUTF8(InputStream inputStream){
+        String responseData="";
+        StringBuilder builder = new StringBuilder();
+        try {
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
+            String line;
+            while ((line = in.readLine()) != null) {
+                builder.append(line);
+            }
+
+            responseData = connector.convertToUTF8(builder.toString());
+
+        }catch (Exception ex){
+            connector.errorLog("convertToUTF8: "+ex.toString());
+        }
+
+        return Response.status(200).entity(responseData).build();
     }
 
     @POST
