@@ -27,6 +27,26 @@ class Connector {
         return result;
     }
 
+    private String convertFromUTF8(String message){
+        String result;
+        try {
+            result = new String(message.getBytes(StandardCharsets.UTF_8), "Windows-1251");
+        }catch (Exception stringEx){
+            result = message;
+        }
+        return result;
+    }
+
+    String convertToUTF8(String message){
+        String result;
+        try {
+            result = new String(message.getBytes("Windows-1251"), StandardCharsets.UTF_8);
+        }catch (Exception stringEx){
+            result = message;
+        }
+        return result;
+    }
+
     void errorLog(String message){
         final String errorsFile = "connector.errors";
         Calendar calendar = Calendar.getInstance();
@@ -89,6 +109,14 @@ class Connector {
             result = null;
         }
         return result;
+    }
+
+    void createOrder(String content){
+        try {
+            app.invoke("CreateOrder", convertFromUTF8(content));
+        }catch (COMException ex){
+            errorLog("CreateOrder: "+ex.toString());
+        }
     }
 
     JSONArray getReferenceData(String refType, String groupCode){
