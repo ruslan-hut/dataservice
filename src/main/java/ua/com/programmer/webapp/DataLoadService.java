@@ -15,7 +15,7 @@ import java.io.InputStreamReader;
 @Path("/rc")
 public class DataLoadService {
 
-    private Connector connector = new Connector();
+    private final Connector connector = new Connector();
 
     @GET
     @Path("/test")
@@ -24,9 +24,9 @@ public class DataLoadService {
         try {
             connector.openConnection();
             connector.closeConnection();
-            result = "Database connected!";
+            result = "Status: OK; Database connected";
         }catch (Exception ex){
-            result = "Error: "+ex.toString();
+            result = "Status: Error; "+ex.toString();
         }
         return Response.status(200).entity(result).build();
     }
