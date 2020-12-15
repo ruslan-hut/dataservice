@@ -112,9 +112,11 @@ class Connector {
     }
 
     void createOrder(String content){
+        String convContent = convertFromUTF8(content);
         try {
-            app.invoke("CreateOrder", convertFromUTF8(content));
+            app.invoke("CreateOrder", convContent);
         }catch (COMException ex){
+            errorLog("content: "+convContent);
             errorLog("CreateOrder: "+ex.toString());
         }
     }
